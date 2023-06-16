@@ -1,0 +1,14 @@
+name: bt-composite-strategies
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.10
+  - jupyter
+  - pandas<2.0.0
+  - pip
+  - pytest
+
+  - pip:
+      - git+https://github.com/pmorissette/bt.git
+      - pytest-resource-path
