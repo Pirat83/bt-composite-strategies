@@ -22,8 +22,10 @@ def test_traverse_asset():
     }
 
     subject = BTInterpreter(node, date.today() - timedelta(weeks=4), date.today())
-    actual: bt.backtest.Result = subject.traverse()
-    print_backtest_results(actual)
+    strategy: bt.Strategy = subject.traverse()
+    backtest: bt.Backtest = subject.build_backtest(strategy)
+    result: bt.backtest.Result = bt.run(backtest)
+    print_backtest_results(result)
 
 
 def test_traverse_first_level_asset():
@@ -45,8 +47,10 @@ def test_traverse_first_level_asset():
     }
 
     subject = BTInterpreter(node, date.today() - timedelta(weeks=4), date.today())
-    actual: bt.backtest.Result = subject.traverse()
-    print_backtest_results(actual)
+    strategy: bt.Strategy = subject.traverse()
+    backtest: bt.Backtest = subject.build_backtest(strategy)
+    result: bt.backtest.Result = bt.run(backtest)
+    print_backtest_results(result)
 
 
 def test_traverse_second_level_asset():
@@ -80,14 +84,14 @@ def test_traverse_second_level_asset():
                         'ticker': 'IYY'
                     },
                     {
-                        'id': '57033cdf-c185-4091-9d3e-3fc1e17913be  ',
+                        'id': '57033cdf-c185-4091-9d3e-3fc1e17913be',
                         'node-type': 'asset',
                         'ticker': 'IWM'
                     }
                 ]
             },
             {
-                'id': '07306351-709d-41d8-b8dd-d8f6e6ae2900  ',
+                'id': '07306351-709d-41d8-b8dd-d8f6e6ae2900',
                 'node-type': 'asset',
                 'ticker': 'IVV'
             }
@@ -95,5 +99,7 @@ def test_traverse_second_level_asset():
     }
 
     subject = BTInterpreter(node, date.today() - timedelta(weeks=4), date.today())
-    actual: bt.backtest.Result = subject.traverse()
-    print_backtest_results(actual)
+    strategy: bt.Strategy = subject.traverse()
+    backtest: bt.Backtest = subject.build_backtest(strategy)
+    result: bt.backtest.Result = bt.run(backtest)
+    print_backtest_results(result)
