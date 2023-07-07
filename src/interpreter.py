@@ -1,25 +1,25 @@
 from datetime import date
-from typing import Union
+from typing import Union, List, Mapping
 
 import bt
 from pandas import DataFrame
 
 
 class BTInterpreter:
-    root: dict
+    root: Mapping
 
     start: date
     end: date
     rebalance: bt.algos.RunPeriod
     prices: DataFrame = None
 
-    def __init__(self, root: dict, start: date, end: date):
+    def __init__(self, root: Mapping, start: date, end: date):
         self.root = root
 
         self.start = start
         self.end = end
 
-    def traverse(self, node: dict = None) -> bt.Strategy:
+    def traverse(self, node: Mapping = None) -> Union[bt.core.Security, bt.core.Strategy]:
         if node is None:
             node = self.root
         node_type: str = node.get('node-type')
@@ -31,18 +31,16 @@ class BTInterpreter:
             case _:
                 raise NotImplementedError()
 
-    def parse_group(self, node: dict) -> bt.Strategy:
+    def parse_group(self, node: Mapping) -> bt.Strategy:
         identifier: str = node.get('id')
 
         children: list = node.get('children')
-        children: list[bt.Strategy] = [self.traverse(c) for c in children]
+        children: list[bt.core.Node] = [self.traverse(c) for c in children]
 
         result: bt.Strategy = self.build_strategy(identifier, children, debug=True)
         return result
 
-    def parse_asset(self, node: dict) -> bt.Strategy:
-        identifier: str = node.get('id')
-
+    def parse_asset(self, node: Mapping) -> bt.Security:
         ticker: str = node.get('ticker')
         prices: DataFrame = bt.data.get(ticker, clean_tickers=False, start=self.start, end=self.end)
         if self.prices is None:
@@ -50,16 +48,16 @@ class BTInterpreter:
         else:
             self.prices = self.prices.join(prices)
 
-        result: bt.Strategy = self.build_strategy(identifier, [ticker], debug=True)
+        result: bt.Security = bt.Security(ticker)
         return result
 
     def build_strategy(self, name: str,
-                       children: Union[list[str], list[bt.core.Node]],
+                       children: Union[List[str], List[bt.core.Node]],
                        selection: bt.algos.Algo = bt.algos.SelectAll(),
                        weight: bt.algos.Algo = bt.algos.WeighInvVol(),
                        debug: bool = False
                        ) -> bt.Strategy:
-        algos: [list[bt.algos.Algo]] = [
+        algos: [List[bt.algos.Algo]] = [
             bt.algos.RunAfterDate(self.start),
             bt.algos.RunDaily(),
             selection,
